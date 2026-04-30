@@ -14,6 +14,8 @@ class LoginViewController: UIViewController {
     @IBOutlet weak var loginBtn: UIButton!
     @IBOutlet weak var errorLabel: UILabel!
     
+    var viewModel = LoginViewModel()
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         emailField.layer.cornerRadius = 10
@@ -30,10 +32,10 @@ class LoginViewController: UIViewController {
     
     @IBAction func onLoginPress(_ sender: UIButton) {
         validateFields()
-        
-        if loginBtn.isEnabled {
-            goToHome()
-        }
+           
+           if viewModel.isValid {
+               goToHome()
+           }
     }
     
     @objc func textChanged() {
@@ -44,30 +46,16 @@ class LoginViewController: UIViewController {
         let email = emailField.text ?? ""
         let password = passwordField.text ?? ""
         
-        if email.isEmpty || password.isEmpty {
-            loginBtn.isEnabled = false
-            errorLabel.isHidden = true
-            return
-        }
+        viewModel.validate(email: email, password: password)
         
-        if !isValidEmail(email) {
-            showError(message: "Invalid email format")
-            loginBtn.isEnabled = false
-            errorLabel.isHidden = false
-            return
-        }
+        loginBtn.isEnabled = viewModel.isValid
+        loginBtn.alpha = viewModel.isValid ? 1.0 : 0.5
         
-        if password.count < 6 {
-            showError(message: "Password must be at least 6 characters")
-            loginBtn.isEnabled = false
-            errorLabel.isHidden = false
-            return
+        if let error = viewModel.errorMessage {
+            showError(message: error)
+        } else {
+            clearError()
         }
-        
-        clearError()
-        loginBtn.isEnabled = true
-        errorLabel.isHidden = true
-        loginBtn.alpha = loginBtn.isEnabled ? 1.0 : 0.5
     }
     
     
